@@ -17,7 +17,7 @@ void main(){
       ChangeNotifierProvider(
           builder: (_) => JMessageManagerProvider()..initPushMessage())
     ], child: MaterialApp(
-                supportedLocales: [Locale('zh', ''), Locale('en', '')],
+                // supportedLocales: [Locale('zh', ''), Locale('en', '')],
                 title: 'Wing',
                 debugShowCheckedModeBanner: false,
                 theme: ThemeData(primaryColor: Colors.white),

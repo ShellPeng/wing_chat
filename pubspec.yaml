@@ -38,6 +38,9 @@ dependencies:
     git:
       url: git://github.com/jpush/jmessage-flutter-plugin.git
       ref: master
+  
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
