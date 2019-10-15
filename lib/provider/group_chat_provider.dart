@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:extended_image/extended_image.dart';
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -60,7 +61,7 @@ class GroupChatProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  set keyboardHeight(value){
+  set keyboardHeight(value) {
     _keyboardHeight = max(_keyboardHeight, value);
     // notifyListeners();
   }
@@ -304,21 +305,68 @@ class GroupChatProvider with ChangeNotifier {
   _messageContentType(PPMessageModel msgModel, String otherId) {
     switch (msgModel.messageType) {
       case JMMessageType.image:
-        return Image.file(
-              msgModel.imageFile,
-              height: 200 * 9 / 16.0,
-              fit: BoxFit.fitWidth,
-            );
+        return InkWell(
+          onTap: () {
+            jmessage
+                .downloadOriginalImage(
+                    messageId: Platform.isAndroid
+                        ? msgModel.message.serverMessageId
+                        : msgModel.message.id,
+                    target: kGroup)
+                .then((result) {
+              if (result.isNotEmpty) {
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return GestureDetector(
+                        onTap: (){
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                        color: Colors.black,
+                        child: ExtendedImage.file(
+                        File(result['filePath']), fit: BoxFit.contain,
+                        //enableLoadState: false,
+                        mode: ExtendedImageMode.gesture,
+                        onDoubleTap: (tap){
+                          Navigator.pop(context);
+                        },
+                        initGestureConfigHandler: (state) {
+                          return GestureConfig(
+                              minScale: 0.9,
+                              animationMinScale: 0.7,
+                              maxScale: 3.0,
+                              animationMaxScale: 3.5,
+                              speed: 1.0,
+                              inertialSpeed: 100.0,
+                              initialScale: 1.0,
+                              inPageView: false);
+                        },
+                      ),
+                      ),
+                      );
+                    });
+              }
+            }).catchError((error) {
+              print("下载出错：${error.toString()}");
+            });
+          },
+          child: Image.file(
+            msgModel.imageFile,
+            height: 200 * 9 / 16.0,
+            fit: BoxFit.fitWidth,
+          ),
+        );
         break;
       case JMMessageType.text:
         return ExtendedText(
-            msgModel.text,
-            style: TextStyle(
-                color: msgModel.message.isSend
-                    ? Colors.white
-                    : Colors.black),
-            specialTextSpanBuilder: mySpecialTextSpanBuilder,
-          );
+          msgModel.text,
+          style: TextStyle(
+              color: msgModel.message.isSend ? Colors.white : Colors.black),
+          specialTextSpanBuilder: mySpecialTextSpanBuilder,
+        );
         break;
       default:
         break;
@@ -388,7 +436,6 @@ class GroupChatProvider with ChangeNotifier {
 }
 
 class PPMessageModel {
-
   String nickname;
   String userId;
   String avatar;
@@ -405,5 +452,4 @@ class PPMessageModel {
       this.imageFile,
       this.message,
       this.messageType});
-
 }
