@@ -7,6 +7,9 @@ import 'package:provider/provider.dart';
 import 'package:wing_chat/provider/group_list_provider.dart';
 import 'package:wing_chat/tools/app_toast.dart';
 import 'package:wing_chat/views/chat/group_chat_scene.dart';
+import 'package:wing_chat/views/chat/single_chat_scene.dart';
+
+final ThemeColor = Color.fromRGBO(237, 237, 237, 1.0);
 
 class MessageListScene extends StatelessWidget {
   Widget _groupListCell(context, JMConversationInfo conversation) {
@@ -112,10 +115,18 @@ class MessageListScene extends StatelessWidget {
               CupertinoPageRoute(
                   builder: (context) =>
                       GroupChatScene(groupInfo: chatInfo))).then((value) {
-            Provider.of<GroupListProvider>(context).loginStatusCheck();
+            // Provider.of<GroupListProvider>(context).loginStatusCheck();
           });
-        }else{
-          AppToast.show('单聊暂未开放');
+        }else if(conversation.conversationType == JMConversationType.single) {
+          
+          chatInfo = JMUserInfo.fromJson(conversation.target.toJson());
+          Navigator.push(
+              context,
+              CupertinoPageRoute(
+                  builder: (context) =>
+                      SingleChatScene(userInfo: chatInfo))).then((value) {
+            // Provider.of<GroupListProvider>(context).loginStatusCheck();
+          });
         }
       },
     );
