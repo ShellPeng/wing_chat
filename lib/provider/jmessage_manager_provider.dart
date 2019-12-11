@@ -4,7 +4,7 @@ import 'package:jmessage_flutter/jmessage_flutter.dart';
 import 'package:platform/platform.dart';
 
 MethodChannel channel = MethodChannel('jmessage_flutter');
-JmessageFlutter jmessage = JmessageFlutter.private(channel, LocalPlatform());
+JmessageFlutter JMessage = JmessageFlutter();
 
 typedef LoginCallback = void Function(bool isSuccess);
 
@@ -39,10 +39,10 @@ class JMessageManagerProvider with ChangeNotifier {
     //   // platformVersion = 'Failed to get platform version.';
     // }
 
-    jmessage.setDebugMode(enable: true);
-    jmessage.init(
-        isOpenMessageRoaming: true, appkey: '65e831cf441e2df70442995a');
-    jmessage.applyPushAuthority(
+    JMessage.setDebugMode(enable: true);
+    JMessage.init(
+        isOpenMessageRoaming: true, appkey: '65e831cf441e2df70442995a',channel: 'test');
+    JMessage.applyPushAuthority(
         JMNotificationSettingsIOS(sound: true, alert: true, badge: true));
   }
 
@@ -50,19 +50,19 @@ class JMessageManagerProvider with ChangeNotifier {
     // await jmessage.login(
     //     username: jUserName, password: jUserPWD);
     // return loginResult(callback);
-    jmessage.login(username: jUserName, password: jUserPWD).then((jUser) {
+    JMessage.login(username: jUserName, password: jUserPWD).then((jUser) {
       callback(jUser != null);
     }).catchError((error) {});
   }
 
   loginResult(LoginCallback callback) async {
-    JMUserInfo user = await jmessage.getMyInfo();
+    JMUserInfo user = await JMessage.getMyInfo();
     print(user.toJson());
     return callback(user != null);
   }
 
   loginStatusChanged() async {
-    jmessage.addLoginStateChangedListener((JMLoginStateChangedType type) {
+    JMessage.addLoginStateChangedListener((JMLoginStateChangedType type) {
       print('flutter receive event receive login state change $type');
       switch (type) {
         case JMLoginStateChangedType.user_login_status_unexpected:

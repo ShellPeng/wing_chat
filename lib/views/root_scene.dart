@@ -44,9 +44,10 @@ class RootScene extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(builder: (_) => RootSceneProvider()),
+        ChangeNotifierProvider(create: (_) => RootSceneProvider()),
       ],
       child: Consumer<RootSceneProvider>(builder: (context,provider,widget){
         return Scaffold(

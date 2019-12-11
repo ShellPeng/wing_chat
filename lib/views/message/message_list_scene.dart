@@ -5,21 +5,29 @@ import 'package:flutter/material.dart';
 import 'package:jmessage_flutter/jmessage_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:wing_chat/provider/group_list_provider.dart';
+import 'package:wing_chat/tools/app_toast.dart';
 import 'package:wing_chat/views/chat/group_chat_scene.dart';
 
 class MessageListScene extends StatelessWidget {
   Widget _groupListCell(context, JMConversationInfo conversation) {
     String messageText = '';
+    String title = '';
     var msgTime;
+    var chatInfo;
     //如果该群组最近的一条消息对象不存在消息，则 conversation 对象中没有latestMessage该属性。
     if (conversation.latestMessage != null) {
       var lastMsg =
           JMNormalMessage.fromJson(conversation.latestMessage.toJson());
-      msgTime =
-          TimelineUtil.format(lastMsg.createTime,locale: DateTime.now().timeZoneName, dayFormat: DayFormat.Full);
+      msgTime = TimelineUtil.format(lastMsg.createTime,
+          locale: DateTime.now().timeZoneName, dayFormat: DayFormat.Full);
     }
-
-    var groupInfo = JMGroupInfo.fromJson(conversation.target.toJson());
+    if (conversation.conversationType == JMConversationType.group) {
+      var chatInfo = JMGroupInfo.fromJson(conversation.target.toJson());
+      title = chatInfo.name;
+    } else {
+      var chatInfo = JMUserInfo.fromJson(conversation.target.toJson());
+      title = chatInfo.nickname;
+    }
 
     if (conversation.latestMessage is JMTextMessage) {
       var textMsg = JMTextMessage.fromJson(conversation.latestMessage.toJson());
@@ -57,7 +65,7 @@ class MessageListScene extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Text('${groupInfo.name}',
+                    Text('$title',
                         style: TextStyle(
                             color: Colors.black,
                             fontSize: 15,
@@ -97,46 +105,51 @@ class MessageListScene extends StatelessWidget {
         ),
       ),
       onTap: () {
-        Navigator.push(
-                context,
-                CupertinoPageRoute(
-                    builder: (context) => GroupChatScene(groupInfo: groupInfo)))
-            .then((value) {
-          Provider.of<GroupListProvider>(context).loginStatusCheck();
-        });
+        if (conversation.conversationType == JMConversationType.group) {
+          chatInfo = JMGroupInfo.fromJson(conversation.target.toJson());
+          Navigator.push(
+              context,
+              CupertinoPageRoute(
+                  builder: (context) =>
+                      GroupChatScene(groupInfo: chatInfo))).then((value) {
+            Provider.of<GroupListProvider>(context).loginStatusCheck();
+          });
+        }else{
+          AppToast.show('单聊暂未开放');
+        }
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(builder: (_) => GroupListProvider()..loginStatusCheck()),
+        ChangeNotifierProvider(
+            create: (_) => GroupListProvider()..loginStatusCheck()),
       ],
       child: Scaffold(
-            appBar: AppBar(
-              title: Text(
-                '消息',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              centerTitle: true,
-              // elevation: 0,
+          appBar: AppBar(
+            title: Text(
+              '消息',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            backgroundColor: ThemeColor,
-            body: Consumer<GroupListProvider>(builder: (_, provider, widget) {
-              if (provider.groupList.length > 0) {
-                return ListView.builder(
-                  itemBuilder: (context, index) {
-                    return _groupListCell(context, provider.groupList[index]);
-                  },
-                  itemCount: provider.groupList.length,
-                );
-              } else {
-                return Container();
-              }
-            })),
+            centerTitle: true,
+            // elevation: 0,
+          ),
+          backgroundColor: ThemeColor,
+          body: Consumer<GroupListProvider>(builder: (_, provider, widget) {
+            if (provider.groupList.length > 0) {
+              return ListView.builder(
+                itemBuilder: (context, index) {
+                  return _groupListCell(context, provider.groupList[index]);
+                },
+                itemCount: provider.groupList.length,
+              );
+            } else {
+              return Container();
+            }
+          })),
     );
   }
 }

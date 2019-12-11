@@ -19,7 +19,7 @@ class GroupChatScene extends StatelessWidget {
     return MultiProvider(
         providers: [
           ChangeNotifierProvider(
-              builder: (context) => GroupChatProvider()
+              create: (context) => GroupChatProvider()
                 ..context = context
                 ..kGroupInfo = groupInfo
                 ..initConversation())

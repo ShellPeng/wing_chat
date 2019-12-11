@@ -172,12 +172,12 @@ class GroupChatProvider with ChangeNotifier {
 
   /// 创建会话
   _createGroupConversation() async {
-    kGroupConver = await jmessage.createConversation(target: kGroup);
+    kGroupConver = await JMessage.createConversation(target: kGroup);
 
-    jmessage.resetUnreadMessageCount(target: kGroup);
+    JMessage.resetUnreadMessageCount(target: kGroup);
 
-    await jmessage.enterConversation(target: kGroup);
-    jmessage.addReceiveMessageListener((msg) async {
+    await JMessage.enterConversation(target: kGroup);
+    JMessage.addReceiveMessageListener((msg) async {
       print('消息监听++++++++++++++++++++++++++++++++++++++++');
       isLoading = false;
       if (kGroupConver.isMyMessage(msg)) {
@@ -280,7 +280,7 @@ class GroupChatProvider with ChangeNotifier {
     _chatWidgetChildren = widgetList.reversed.toList();
     controller.loadComplete();
     notifyListeners();
-    jmessage.resetUnreadMessageCount(target: kGroup);
+    JMessage.resetUnreadMessageCount(target: kGroup);
 
     if (!isHistory) {
       scrollController.animateTo(
@@ -307,7 +307,7 @@ class GroupChatProvider with ChangeNotifier {
       case JMMessageType.image:
         return InkWell(
           onTap: () {
-            jmessage
+            JMessage
                 .downloadOriginalImage(
                     messageId: Platform.isAndroid
                         ? msgModel.message.serverMessageId
@@ -430,8 +430,8 @@ class GroupChatProvider with ChangeNotifier {
   void dispose() {
     super.dispose();
     controller.dispose();
-    jmessage.exitConversation(target: kGroup);
-    jmessage.removeReceiveMessageListener((message) {});
+    JMessage.exitConversation(target: kGroup);
+    JMessage.removeReceiveMessageListener((message) {});
   }
 }
 
