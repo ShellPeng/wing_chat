@@ -5,12 +5,8 @@ import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:jmessage_flutter/jmessage_flutter.dart';
-// import 'package:overseas_online/config/application.dart';
-// import 'package:overseas_online/model/userinfo_model.dart';
-// import 'package:overseas_online/view/group_chat/photo_view.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:wing_chat/tools/special_text_span_builder.dart';
-// import 'chat_report_provider.dart';
 import 'jmessage_manager_provider.dart';
 
 class GroupChatProvider with ChangeNotifier {
